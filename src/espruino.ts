@@ -5,3 +5,5 @@ declare const B1:any, B3:any, B4: any, B7: any, B10:any, B13:any, B14:any, B15:a
 declare const pinMode:Function;
 declare const setWatch:Function;
 declare const digitalRead:Function;
+declare const E:any;
+

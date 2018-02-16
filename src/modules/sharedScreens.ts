@@ -1,12 +1,16 @@
 import { Module, Button } from "./Module";
+import { flashHandler } from "../app";
+import { Highscores } from "./Highscores";
+
+const highscores = new Highscores(flashHandler);
 
 export class GetReadyScreen implements Module {
     id: string = "GetReadyScreen";
     caller: Module;
     count: number = 0;
 
-    constructor(caller:Module) {
-        this.caller=caller;
+    constructor(caller: Module) {
+        this.caller = caller;
     }
 
     tick(g: any, buttons: Button[]): Module | undefined {
@@ -14,7 +18,7 @@ export class GetReadyScreen implements Module {
 
         g.clear();
         g.setFontBitmap();
-        if ( this.count % 10 > 5 ) {
+        if (this.count % 10 > 5) {
             g.drawString("Get Ready!", 40 - g.stringWidth("Get Ready!") / 2, 18);
         }
 
@@ -27,31 +31,40 @@ export class GetReadyScreen implements Module {
     }
 
     init(g: any): void {
-        this.count=0;
+        this.count = 0;
 
     }
 }
 
 export class GameOverScreen implements Module {
+    gameId: string;
     id: string = "GameOverScreen";
     score: number;
     caller: Module;
-    count: number=0;
+    count: number = 0;
 
-    constructor(caller: Module, score: number) {
-        this.caller=caller;
-        this.score=score;
+    constructor(caller: Module, gameId: string, score: number) {
+        this.caller = caller;
+        this.score = score;
+        this.gameId = gameId;
+
+        highscores.put(gameId, score);
     }
 
     tick(g: any, buttons: Button[]): Module | undefined {
         g.clear();
         g.setFontBitmap();
         g.drawString("Game Over!", 40 - g.stringWidth("Game Over!") / 2, 5);
-        g.drawString("Score " + this.score, 25, 18);
 
-        if ( this.count++ > 35 ) {
-            g.drawString(" GREEN - new game", 6, 28);
-            g.drawString("YELLOW - main menu", 6, 36);
+        const scoreText = "Score " + this.score;
+        const highscoreText = "Highscore " + highscores.get(this.gameId);
+
+        g.drawString(scoreText, 40 - g.stringWidth(scoreText) / 2, 14);
+        g.drawString(highscoreText, 40 - g.stringWidth(highscoreText) / 2, 21);
+
+        if (this.count++ > 35) {
+            g.drawString(" GREEN - new game", 6, 32);
+            g.drawString("YELLOW - main menu", 6, 40);
 
             if (buttons[0].pressed()) {
                 return this.caller;
@@ -65,6 +78,6 @@ export class GameOverScreen implements Module {
     }
 
     init(): void {
-        this.count=0;
+        this.count = 0;
     }
 }

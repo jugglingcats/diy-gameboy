@@ -1,7 +1,7 @@
 import { Module, Button } from "./Module";
 import { FlappyBird } from "./FlappyBird";
 import { GetReadyScreen } from "./sharedScreens";
-import { LunarLander } from "./LunarLander";
+import { LunarLander } from "./lander/LunarLander";
 
 const games = [
     {

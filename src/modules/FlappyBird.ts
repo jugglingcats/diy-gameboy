@@ -61,7 +61,7 @@ export class FlappyBird implements Module {
         birdy += birdvy;
         g.drawImage(birdImg, 0, birdy - 4);
         if (birdy > g.getHeight()) {
-            return new GameOverScreen(this.restart, score);
+            return new GameOverScreen(this.restart, this.id, score);
         }
 
         const hit=barriers.some((b: any) => {
@@ -81,7 +81,7 @@ export class FlappyBird implements Module {
         });
         if ( hit ) {
             // one of the barriers was hit
-            return new GameOverScreen(this.restart, score)
+            return new GameOverScreen(this.restart, this.id, score)
         }
 
         while (barriers.length && barriers[0].x2 <= 0) {

@@ -10,7 +10,8 @@ module.exports = function (env) {
         },
 
         externals: {
-            PCD8544: 'require("PCD8544")'
+            PCD8544: 'require("PCD8544")',
+            Flash: 'require("Flash")'
         },
         /*
          * The combination of path and filename tells Webpack what name to give to
@@ -42,6 +43,7 @@ module.exports = function (env) {
              */
             loaders: [
                 {
+                    exclude: /.js/,
                     loader: "ts-loader"
                 }
             ],

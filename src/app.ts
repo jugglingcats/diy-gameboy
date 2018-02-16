@@ -1,10 +1,14 @@
+// for some reason this has to be at top of entry file (maybe to do with espruino constants?)
+export const flashHandler=new (require("./FlashEEPROM"))();
+
 import { MainMenu } from "./modules/MainMenu";
 import { Button, Module, ButtonMode } from "./modules/Module";
-import { LunarLander } from "./modules/LunarLander";
+import { LunarLander } from "./modules/lander/LunarLander";
+import { ExplosionDemo } from "./modules/lander/Explosion";
 
 declare const require:any;
 
-const PCD8544 = require("PCD8544");
+export const PCD8544 = require("PCD8544");
 
 require("./espruino");
 
@@ -13,6 +17,7 @@ A7.write(1); // VCC
 
 let module:Module = new MainMenu();
 // let module:Module = new LunarLander();
+// let module:Module = new ExplosionDemo();
 
 const buttons = [
     new Button(B3, "Green"),

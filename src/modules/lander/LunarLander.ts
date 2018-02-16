@@ -1,5 +1,8 @@
-import { Module, Button, ButtonMode } from "./Module";
-import { GameOverScreen, GetReadyScreen } from "./sharedScreens";
+import { Module, Button, ButtonMode } from "../Module";
+import { GameOverScreen, GetReadyScreen } from "../sharedScreens";
+import { landerw, landerh, flag, flagh, landerBody, landerJet } from "./landerGraphics";
+import { terrain_gen } from "./terrainGen";
+import { Particles } from "./Explosion";
 
 let landery = 0;
 let landervy = 0;
@@ -8,85 +11,15 @@ let landerx = 30;
 let landervx = 0;
 
 let landed = false;
+let crashed = false;
+let reason;
 
 let landscape: number[] = [];
 
 let padx = 0;
-let padw = 12;
+let padw = 15;
 
 let score = 0;
-
-const flagw = 8;
-const flagh = 8;
-let flag = {
-    width: flagw, height: flagh, bpp: 1,
-    transparent: 0,
-    buffer: new Uint8Array([
-        0b01111110,
-        0b01000010,
-        0b01000010,
-        0b01111110,
-        0b01000000,
-        0b01000000,
-        0b01000000,
-        0b01000000,
-    ]).buffer
-};
-
-const landerw = 8;
-const landerh = 8;
-let landerBody = {
-    width: landerw, height: landerh, bpp: 1,
-    transparent: 0,
-    buffer: new Uint8Array([
-        0b00011000,
-        0b00100100,
-        0b01000010,
-        0b01011010,
-        0b01000010,
-        0b01011010,
-        0b10000001,
-        0b11111111,
-    ]).buffer
-};
-
-let landerJet = {
-    width: 8, height: 4, bpp: 1,
-    transparent: 0,
-    buffer: new Uint8Array([
-        0b10000001,
-        0b01000010,
-        0b00100100,
-        0b00011000,
-    ]).buffer
-};
-
-function terrain_gen(count: number): number[] {
-    let y = 46;
-    let change = 0;
-    let repeat = 4;
-    const result: number[] = [];
-    for (let n = 0; n < count; n++) {
-        if (change == 0) {
-            if (Math.random() < 0.7) {
-                change = -1;
-            } else {
-                change = +1;
-            }
-        }
-        y += change;
-        if (y > 47) {
-            y = 47;
-        }
-        repeat--;
-        if (repeat == 0) {
-            change = 0;
-            repeat = Math.round(Math.random() * 2 + 1);
-        }
-        result.push(y);
-    }
-    return result;
-}
 
 function hit_terrain(): boolean {
     const x = Math.floor(landerx);
@@ -101,6 +34,7 @@ function hit_terrain(): boolean {
 let pause = 0;
 
 export class LunarLander implements Module {
+    particles: Particles | undefined = undefined;
     restart: GetReadyScreen;
     id: string = "LunarLander";
 
@@ -149,30 +83,43 @@ export class LunarLander implements Module {
 
         landerx += landervx;
         if (buttons[0].pressed()) {
+            // landerx--;
             landervx -= 0.1;
         }
         if (buttons[2].pressed()) {
+            // landerx++;
             landervx += 0.1;
-        }
-
-        if (hit_terrain()) {
-            const score1 = score;
-            if (landerx < padx || landerx + 8 > padx + padw) {
-                score = 0;
-                return new GameOverScreen(this.restart, score1);
-            }
-            if (landervy > 2) {
-                score = 0;
-                return new GameOverScreen(this.restart, score1);
-            }
-            landery = 46 - landerh
-            landed = true;
-            score++;
         }
 
         g.clear();
 
-        g.drawImage(landerBody, landerx, landery);
+        if ( !crashed) {
+            if (hit_terrain()) {
+                if (landerx < padx || landerx + landerw > padx + padw + 2) {
+                    crashed = true;
+                    reason="Missed Pad!"
+                } else if (landervy > 2) {
+                    reason="Too Fast!"
+                    crashed = true;
+                } else {
+                    landery = 46 - landerh
+                    landed = true;
+                    score++;
+                }
+            }
+    
+            g.drawImage(landerBody, landerx, landery);
+        } else {
+            g.drawString(reason, 40 - g.stringWidth(reason) / 2, 8);
+            if (!this.particles) {
+                this.particles = new Particles(Math.round(landerx), Math.round(landery), landscape);
+            }
+            if (!this.particles.draw(g)) {
+                const score1=score;
+                score=0;
+                return new GameOverScreen(this.restart, this.id, score1);
+            }
+        }
 
         if (buttons[1].pressed()) {
             g.drawImage(landerJet, landerx, landery + landerh + 1);
@@ -202,6 +149,8 @@ export class LunarLander implements Module {
         landervx = 0;
 
         landed = false;
+        crashed=false;
+        this.particles=undefined;
     }
 
 }
