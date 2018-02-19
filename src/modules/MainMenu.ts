@@ -2,6 +2,7 @@ import { Module, Button } from "./Module";
 import { FlappyBird } from "./FlappyBird";
 import { GetReadyScreen } from "./sharedScreens";
 import { LunarLander } from "./lander/LunarLander";
+import { Pong } from "./Pong";
 
 const games = [
     {
@@ -11,6 +12,10 @@ const games = [
     {
         title: "Lunar Lander",
         game: new GetReadyScreen(new LunarLander())
+    },
+    {
+        title: "Pong",
+        game: new GetReadyScreen(new Pong())
     }
 ];
 
@@ -36,7 +41,7 @@ export class MainMenu implements Module {
                 selectedGame = 0;
             }
         }
-        if ( buttons[1].pressed() ) {
+        if (buttons[1].pressed()) {
             return games[selectedGame].game;
         }
         return this;

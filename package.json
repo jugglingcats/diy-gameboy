@@ -7,6 +7,7 @@
     "dist": "webpack",
     "watch": "webpack --watch --env.entry ./devrun.ts",
     "espruino": "espruino --watch dist/bundle.js",
+    "connect": "espruino",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

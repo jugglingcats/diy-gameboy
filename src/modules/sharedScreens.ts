@@ -1,8 +1,8 @@
 import { Module, Button } from "./Module";
-import { flashHandler } from "../app";
+// import { flashHandler } from "../app";
 import { Highscores } from "./Highscores";
 
-const highscores = new Highscores(flashHandler);
+const highscores = new Highscores(undefined);
 
 export class GetReadyScreen implements Module {
     id: string = "GetReadyScreen";

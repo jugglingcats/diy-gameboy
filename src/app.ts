@@ -1,12 +1,15 @@
 // for some reason this has to be at top of entry file (maybe to do with espruino constants?)
-export const flashHandler=new (require("./FlashEEPROM"))();
+// export const flashHandler = new (require("./FlashEEPROM"))();
+// flashHandler.endAddr = flashHandler.addr + 1024;
+export const flash = require("Flash");
 
 import { MainMenu } from "./modules/MainMenu";
 import { Button, Module, ButtonMode } from "./modules/Module";
 import { LunarLander } from "./modules/lander/LunarLander";
 import { ExplosionDemo } from "./modules/lander/Explosion";
+import { Pong } from "./modules/Pong";
 
-declare const require:any;
+declare const require: any;
 
 export const PCD8544 = require("PCD8544");
 
@@ -15,9 +18,10 @@ require("./espruino");
 A5.write(0); // GND
 A7.write(1); // VCC
 
-let module:Module = new MainMenu();
+let module: Module = new MainMenu();
 // let module:Module = new LunarLander();
 // let module:Module = new ExplosionDemo();
+// let module:Module = new Pong();
 
 const buttons = [
     new Button(B3, "Green"),
@@ -25,21 +29,23 @@ const buttons = [
     new Button(B7, "Yellow")
 ]
 
-let count=1;
+let count = 1;
 function tick(g: any) {
-    if ( count === 1 ) {
+    if (count === 1) {
+        console.log("Init first module");
         module.init(g, buttons);
     }
 
     const next = module.tick(g, buttons) || new MainMenu();
+
     // console.log(next.id, count++);
-    if ( next.id != module.id ) {
+    if (next.id != module.id) {
         console.log("Module changed to: ", next.id);
         // reset button modes
         buttons.forEach(b => b.setMode(ButtonMode.CLICK));
 
         next.init(g, buttons);
-        module=next;
+        module = next;
     }
     count++;
 }
