@@ -6,17 +6,24 @@
   "scripts": {
     "dist": "webpack",
     "watch": "webpack --watch --env.entry ./devrun.ts",
+    "sounds": "webpack --watch --env.entry ./soundcheck.ts",
+    "watch-test": "webpack --watch --env.entry ./test.ts",
     "espruino": "espruino --watch dist/bundle.js",
-    "connect": "espruino",
+    "esp32": "espruino -b 115200 -s 128 --watch dist/bundle.js",
+    "esp32-test": "espruino -b 115200 -s 128 --watch raw.2.js",
+    "connect": "espruino -b 115200",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "awesome-typescript-loader": "^3.4.1",
-    "espruino": "^0.1.4",
+    "fetch": "^1.1.0",
     "ts-loader": "^3.5.0",
     "typescript": "^2.7.1",
     "webpack": "^3.10.0"
+  },
+  "dependencies": {
+    "espruino": "^0.1.6"
   }
 }

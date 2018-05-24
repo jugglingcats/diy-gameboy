@@ -1,68 +1,49 @@
 // for some reason this has to be at top of entry file (maybe to do with espruino constants?)
 // export const flashHandler = new (require("./FlashEEPROM"))();
 // flashHandler.endAddr = flashHandler.addr + 1024;
-export const flash = require("Flash");
+// export const flash = require("Flash");
 
 import { MainMenu } from "./modules/MainMenu";
-import { Button, Module, ButtonMode } from "./modules/Module";
-import { LunarLander } from "./modules/lander/LunarLander";
-import { ExplosionDemo } from "./modules/lander/Explosion";
+import { Button, Module, ButtonMode, Services } from "./modules/Module";
+import { Highscores } from "./modules/Highscores";
+import { Sound } from "./modules/Sound";
 import { Pong } from "./modules/Pong";
 
 declare const require: any;
 
-export const PCD8544 = require("PCD8544");
-
 require("./espruino");
 
-A5.write(0); // GND
-A7.write(1); // VCC
-
-let module: Module = new MainMenu();
+const mainMenu = new MainMenu();
+// let module: Module = mainMenu;
 // let module:Module = new LunarLander();
-// let module:Module = new ExplosionDemo();
-// let module:Module = new Pong();
-
-const buttons = [
-    new Button(B3, "Green"),
-    new Button(B4, "Red"),
-    new Button(B7, "Yellow")
-]
-
+// let module:Module = new FlappyBird();
+let module:Module = new Pong();
+// 
 let count = 1;
-function tick(g: any) {
+function tick(services: Services) {
+    const { buttons } = services; 
+
     if (count === 1) {
         console.log("Init first module");
-        module.init(g, buttons);
+        module.init(services);
     }
 
-    const next = module.tick(g, buttons) || new MainMenu();
+    const next = module.tick(services) || mainMenu;
 
-    // console.log(next.id, count++);
     if (next.id != module.id) {
         console.log("Module changed to: ", next.id);
         // reset button modes
         buttons.forEach(b => b.setMode(ButtonMode.CLICK));
 
-        next.init(g, buttons);
+        next.init(services);
         module = next;
     }
     count++;
-}
+} 
 
-export function start() {
-    setTimeout(() => {
-        // Setup SPI
-        var spi = new SPI();
-        spi.setup({ sck: B1, mosi: B10 });
-        // Initialise the LCD
-        const g = PCD8544.connect(spi, B13, B14, B15, function () {
-            // When it's initialised, set up an animation at 20fps (50ms per frame)
-            //   gameStart();
-            setInterval(function () {
-                tick(g);
-            }, 50);
-            console.log("Ready!");
-        });
-    }, 1000);
+export function start(services: Services) {
+    setInterval(function () {
+        tick(services);
+    }, 50)
 }
+// 

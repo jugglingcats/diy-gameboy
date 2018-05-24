@@ -1,5 +1,5 @@
-export function terrain_gen(count: number): number[] {
-    let y = 46;
+export function terrain_gen(count: number, height:number): number[] {
+    let y = height-2;
     let change = 0;
     let repeat = 4;
     const result: number[] = [];
@@ -12,8 +12,8 @@ export function terrain_gen(count: number): number[] {
             }
         }
         y += change;
-        if (y > 47) {
-            y = 47;
+        if (y > height-1) {
+            y = height-1;
         }
         repeat--;
         if (repeat == 0) {

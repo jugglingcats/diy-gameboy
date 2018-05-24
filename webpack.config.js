@@ -1,6 +1,7 @@
 var path = require("path");
 var webpack = require("webpack");
 var fs = require('fs');
+var fetchUrl = require('fetch').fetchUrl;
 
 module.exports = function (env) {
     return {
@@ -9,10 +10,29 @@ module.exports = function (env) {
             "main": env && env.entry || "./prodrun.ts"
         },
 
-        externals: {
-            PCD8544: 'require("PCD8544")',
-            Flash: 'require("Flash")'
+        externals: function(context, request, callback) {
+            if ( request.indexOf('http') === 0 ) {
+                fetchUrl(request, function(error, meta, body){
+                    if (error) {
+                        throw error;
+                    }
+                    callback(null, body.toString());
+                });
+                return;
+            }
+            switch (request) {
+                case 'FlashEEPROM':
+                case 'PCD8544':
+                case 'MPU6050':
+                case 'MPU6050_DMP':
+                case 'SH1106':
+                case 'Flash':
+                    return callback(null, 'require("'+request+'")');
+            }
+            // default
+            callback();
         },
+
         /*
          * The combination of path and filename tells Webpack what name to give to
          * the final bundled JavaScript file and where to store this file.
@@ -42,6 +62,10 @@ module.exports = function (env) {
              * installed ts-loader yet, but will do that shortly.
              */
             loaders: [
+                {
+                    test: /^http\:/,
+                    loader: "http-loader"
+                },
                 {
                     exclude: /.js/,
                     loader: "ts-loader"

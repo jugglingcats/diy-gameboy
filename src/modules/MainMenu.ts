@@ -1,10 +1,15 @@
-import { Module, Button } from "./Module";
-import { FlappyBird } from "./FlappyBird";
+import { Module, Button, Services } from "./Module";
 import { GetReadyScreen } from "./sharedScreens";
 import { LunarLander } from "./lander/LunarLander";
+import { FlappyBird } from "./FlappyBird";
 import { Pong } from "./Pong";
+import { Highscores } from "./Highscores";
 
-const games = [
+const games: any[] = [
+    // {
+    //     title: "Explosion Demo",
+    //     game: new GetReadyScreen(new ExplosionDemo())
+    // },
     {
         title: "Flappy Bird",
         game: new GetReadyScreen(new FlappyBird())
@@ -24,12 +29,14 @@ let selectedGame = 0;
 export class MainMenu implements Module {
     public id: string = "MainMenu";
 
-    tick(g, buttons: Button[]): Module | undefined {
+    tick(services: Services): Module | undefined {
+        const { graphics: g, buttons } = services;
         g.clear();
-        g.setFontBitmap();
 
         g.drawString("Choose game:", 0, 5);
-        g.drawString(games[selectedGame].title, 0, 15);
+        if (games[selectedGame]) {
+            g.drawString(games[selectedGame].title, 0, 15);
+        }
 
         g.drawString("GREEN - select game", 0, 28);
         g.drawString("  RED - play", 0, 35);

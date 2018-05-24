@@ -1,10 +1,19 @@
+import { Sound } from "./Sound";
+
 declare const require: any;
 
 require("../espruino");
 
+export type Services={
+    graphics: any,
+    buttons: Button[],
+    highscores: any,
+    sound: Sound
+}
+
 export interface Module {
-    tick(g: any, buttons: Button[]): Module | undefined;
-    init(g: any, buttons: Button[]): void;
+    tick(services:Services): Module | undefined;
+    init(services:Services): void;
     id: string;
 }
 
@@ -25,16 +34,6 @@ export class Button {
         this.name=name;
 
         pinMode(BTN, 'input_pulldown', false);
-
-        // setWatch(e => {
-        //     console.log("Button pressed!", name);
-        //     this.pressed = true;
-        // }, BTN, {
-        //         repeat: true,
-        //         edge: 'rising',
-        //         debounce: 5
-        //     });
-
     }
 
     pressed():boolean {

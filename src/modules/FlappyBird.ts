@@ -1,4 +1,4 @@
-import { Module, Button } from "./Module";
+import { Module, Button, Services } from "./Module";
 import { GameOverScreen, GetReadyScreen } from "./sharedScreens";
 
 let SPEED = 0.5;
@@ -18,17 +18,17 @@ let birdImg = {
     ]).buffer
 };
 
-var birdy = 48 / 2;
+var birdy = 0;
 var birdvy = 0;
 
 var score = 0;
 var barriers: any[] = [];
 
-function newbarrier(x: any) {
+function newbarrier(x: any, height: number) {
     barriers.push({
         x1: x - 5,
         x2: x + 5,
-        y: 10 + Math.random() * 28,
+        y: 20 + Math.random() * (height - 40),
         gap: 12
     });
 }
@@ -38,10 +38,11 @@ export class FlappyBird implements Module {
     restart: GetReadyScreen;
 
     constructor() {
-        this.restart=new GetReadyScreen(this);
+        this.restart = new GetReadyScreen(this);
     }
 
-    tick(g: any, buttons: Button[]): Module | undefined {
+    tick(services: Services): Module | undefined {
+        const { graphics: g, buttons } = services;
         g.clear();
 
         const btn = buttons[1].pressed();
@@ -61,10 +62,10 @@ export class FlappyBird implements Module {
         birdy += birdvy;
         g.drawImage(birdImg, 0, birdy - 4);
         if (birdy > g.getHeight()) {
-            return new GameOverScreen(this.restart, this.id, score);
+            return new GameOverScreen(this.restart, this.id, score, services.highscores);
         }
 
-        const hit=barriers.some((b: any) => {
+        const hit = barriers.some((b: any) => {
             b.x1 -= SPEED;
             b.x2 -= SPEED;
             var btop = b.y - b.gap;
@@ -79,14 +80,14 @@ export class FlappyBird implements Module {
             }
             return false;
         });
-        if ( hit ) {
+        if (hit) {
             // one of the barriers was hit
-            return new GameOverScreen(this.restart, this.id, score)
+            return new GameOverScreen(this.restart, this.id, score, services.highscores)
         }
 
         while (barriers.length && barriers[0].x2 <= 0) {
             barriers.shift();
-            newbarrier(84);
+            newbarrier(g.getWidth() - 4, g.getHeight());
         }
 
         g.flip();
@@ -94,13 +95,14 @@ export class FlappyBird implements Module {
         return this;
     }
 
-    init(): void {
+    init(services: Services): void {
+        const { graphics: g } = services;
         console.log("FlappyBird init");
 
         barriers = [];
-        newbarrier(42);
-        newbarrier(84);
-        birdy = 48 / 2;
+        newbarrier(g.getWidth() / 2, g.getHeight());
+        newbarrier(g.getWidth() - 4, g.getHeight());
+        birdy = g.getHeight() / 2;
         birdvy = 0;
         score = 0;
         SPEED = 0.5;
